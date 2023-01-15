@@ -1,21 +1,43 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React,{Component} from "react";
+import {View,BackHandler,Platform} from 'react-native';
+import WebView from "react-native-webview";
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+
+export default class App extends Component {
+  constructor(props){
+    super(props);
+  }
+  WebView ={
+    canGoBack:false,
+    ref:null
+  }
+  onAndroidBackPress =()=>{
+    if(this.WebView.canGoBack && this.WebView.ref){
+      this.WebView.ref.goBack();
+      return true;
+    }
+    return false;
+  }
+  componentDidMount(){
+    if(Platform.OS === "android"){
+      BackHandler.addEventListener('hardwareBackPress',this.onAndroidBackPress);
+    }
+  }
+  componentWillUnmount(){
+    if(Platform.OS === "android"){
+      BackHandler.removeEventListener('hardwareBackPress',this.onAndroidBackPress);
+    }
+  }
+  render() {
+    return (
+      <View style={{flex:1}}>
+        <WebView
+          ref={ref => this.WebView.ref = ref}
+          onNavigationStateChange={navState => this.WebView.canGoBack = navState.canGoBack}
+          source={{uri: 'https://unifyme.azurewebsites.net/'}}
+          style={{marginTop: 25}}
+        />
+      </View>
+    );
+  }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
